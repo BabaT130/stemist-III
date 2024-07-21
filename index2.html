@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>StockSense</title>
+        
+        <style>
+            .summary{
+                border: 50x;
+                border-color: black;
+            }
+        </style>
+
+    </head>
+    <body>
+        <b>
+            <h1>StockSense</h1>
+        </b>
+        <center>
+            <form method="post" action="/">
+                <label for="company">Company: </label>
+                <input type="text" name="company" required>
+                <button type="submit">Analyze</button>
+            </form>
+        </center>
+        <br><br>
+
+
+        <center>
+            <div class = "summary">
+                <h2>Current Summary:</h2>
+                {% if sentiment_report %}
+                    <p>{{ sentiment_report }}</p>
+                    {% if summary %}
+                        <p>{{ summary }}</p>
+                    {% endif %}
+                
+                {% endif %}
+            </div>
+        </center>
+        <br></br>
+
+        <center>
+            <h2>Report Confidence:</h2>
+            <progress id="file" value="32" max="100"> 32% </progress>
+        </center>
+    </body>
+
+</html>
