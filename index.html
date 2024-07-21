@@ -4,9 +4,8 @@
         <title>StockSense</title>
         
         <style>
-            .summary{
-                border: 50x;
-                border-color: black;
+            .summary {
+                border: 1px solid black;
             }
         </style>
 
@@ -23,8 +22,8 @@
         </center>
 
         <center>
+            <h2>Current Summary:</h2>
             <div class = "summary">
-                <h2>Current Summary:</h2>
                 {% if sentiment_report %}
                     <p>{{ sentiment_report }}</p>
                     {% if summary %}
@@ -34,6 +33,12 @@
                 {% endif %}
             </div>
         </center>
+
+        <center>
+            <h2>Report Confidence:</h2>
+            <progress id="file" value="{{confidence}}" max="1"></progress>
+        </center>
+
     </body>
 
 </html>

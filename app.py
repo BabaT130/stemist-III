@@ -14,6 +14,7 @@ app = Flask(__name__) #create flask instance
 company = ""
 summary = ""
 sentiment_report = ""
+confidence = 0
 
 #get company name from form
 @app.route("/", methods = ['GET', 'POST'])
@@ -22,14 +23,14 @@ def index():
     if request.method == 'POST':
         company = request.form.get('company')
         market_analyzer(company)
-        return render_template('index.html', summary = summary, sentiment_report = sentiment_report)
+        return render_template('index.html', summary = summary, sentiment_report = sentiment_report, confidence = confidence)
     
     return render_template('index.html')
 
 
 #company = input("Company: ")
 def market_analyzer(company):
-    global summary, sentiment_report
+    global summary, sentiment_report, confidence
     sentiment_report = ""
     ######################### Web Scraping #########################
 
@@ -208,7 +209,7 @@ def market_analyzer(company):
     full_story = ""
 
     for article in allStates:
-        full_story += str(article)
+        full_story += str(article) + "."
 
     spacy_model = spacy.load('en_core_web_sm')
 
@@ -249,21 +250,27 @@ def market_analyzer(company):
     #assign sentiment number to stock future forecast
     net_sentiment = ""
     confidence = 0
-    if article_sentiment['compound'] > 0.01 and article_sentiment['compound'] < 0.5:
+    if article_sentiment['compound'] > 0.15 and article_sentiment['compound'] <= 0.5:
+        net_sentiment = market_sentiments['high']
+        confidence = 0.5
+    elif article_sentiment['compound'] > 0.5 and article_sentiment['compound'] < 0.95:
         net_sentiment = market_sentiments['high']
         confidence = 0.7
-    elif article_sentiment['compound'] > 0.5:
+    elif article_sentiment['compound'] >= 0.95:
         net_sentiment = market_sentiments['very-high']
-        confidence = 1
-    elif article_sentiment['compound'] < -0.01 and article_sentiment['compound'] > -0.5:
+        confidence = 0.9
+    elif article_sentiment['compound'] < -0.15 and article_sentiment['compound'] >= -0.5:
+        net_sentiment = market_sentiments['low']
+        confidence = 0.5
+    elif article_sentiment['compound'] < -0.15 and article_sentiment['compound'] > -0.95:
         net_sentiment = market_sentiments['low']
         confidence = 0.7
-    elif article_sentiment['compound'] < -0.5:
+    elif article_sentiment['compound'] <= -0.95:
         net_sentiment = market_sentiments['very-low']
-        confidence = 1
+        confidence = 0.9
     else:
         net_sentiment = market_sentiments['neutral']
-        confidence = 0.5
+        confidence = 1
 
     #collect all finance parts of article and put into string
     article_finance_string = ""
@@ -273,6 +280,8 @@ def market_analyzer(company):
     #display market sentiment / forecast
     if len(article_finance_string) > 0:
         sentiment_report = (f"Based on recent market sentiment, {company.upper()} seems to be moving towards {net_sentiment} growth in the near future.")
+    else:
+        sentiment_report = ("No Report")
         print("DISCLAIMER: All given results are predictions. We do not guarantee results.")
 
     #summarize all finance parts of article if they exist
